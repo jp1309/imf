@@ -212,7 +212,7 @@ const vintages = {
 
 // STATE
 const variableNames = Object.keys(actual);
-let currentVar = variableNames[0];
+let currentVar = "Reservas Internacionales (USD mn)";
 let activeVintages = new Set(Object.keys(vintages));
 let chart = null;
 
@@ -223,6 +223,7 @@ variableNames.forEach(v => {
     opt.value = v; opt.textContent = v;
     varSelect.appendChild(opt);
 });
+varSelect.value = currentVar;
 varSelect.addEventListener('change', () => { currentVar = varSelect.value; updateChart(); });
 
 const togglesDiv = document.getElementById('vintageToggles');
