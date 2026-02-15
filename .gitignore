@@ -1,0 +1,29 @@
+# Archivos temporales e intermedios
+__pycache__/
+*.pyc
+.~lock.*
+*.json
+*.txt
+.claude/
+
+# PDFs en raíz (los usados están en data/)
+/1ecuea*.pdf
+
+# PNGs y XLSX en raíz (los finales están en data/ y charts/)
+/IMF_Ecuador_*.png
+/IMF_Ecuador_*.xlsx
+
+# Scripts de trabajo
+extract_imf_data.py
+
+# Archivos intermedios
+imf_forecast_revisions_analysis.xlsx
+imf_forecasts_comparison.xlsx
+imf_forecasts_compiled.xlsx
+
+# Carpeta de visualizaciones antiguas
+visualizaciones/
+
+# OS
+.DS_Store
+Thumbs.db
