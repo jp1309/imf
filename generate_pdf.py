@@ -1,0 +1,178 @@
+"""
+Genera un PDF con una página por variable macroeconómica,
+mostrando datos reales vs pronósticos del FMI por vintage.
+"""
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+import numpy as np
+
+# --- DATOS (idénticos al index.html) ---
+
+actual = {
+    "Real GDP (%)": {2014:3.8,2015:0.1,2016:-1.2,2017:2.4,2018:1.3,2019:0.0,2020:-7.8,2021:4.2,2022:6.2,2023:2.0,2024:-2.0},
+    "Inflación promedio (%)": {2014:3.6,2015:4.0,2016:1.7,2017:0.4,2018:-0.2,2019:0.3,2020:-0.3,2021:0.1,2022:3.5,2023:2.2,2024:1.5},
+    "Cuenta Corriente (% PIB)": {2014:-0.7,2015:-2.2,2016:1.3,2017:-0.4,2018:-1.2,2019:-0.1,2020:2.7,2021:2.9,2022:1.8,2023:1.9,2024:5.7},
+    "Balance Fiscal NFPS (% PIB)": {2014:-5.2,2015:-6.1,2016:-8.2,2017:-4.5,2018:-2.1,2019:-2.7,2020:-7.1,2021:-1.6,2022:0.0,2023:-3.5,2024:-1.3},
+    "Deuda Pública (% PIB)": {2014:27.1,2015:33.8,2016:43.2,2017:44.6,2018:49.1,2019:51.4,2020:60.9,2021:62.3,2022:57.0,2023:54.3,2024:53.8},
+    "Precio Petróleo Ecuador (USD/bbl)": {2014:84.0,2015:42.1,2016:34.5,2017:45.6,2018:60.6,2019:55.1,2020:35.6,2021:62.0,2022:85.8,2023:68.0,2024:68.5},
+    "PIB Nominal (USD mn)": {2014:101726,2015:99290,2016:99938,2017:104296,2018:107562,2019:108108,2020:99291,2021:106166,2022:116586,2023:121147,2024:124676},
+    "Reservas Internacionales (USD mn)": {2014:3762,2015:2351,2016:4216,2017:2006,2018:2158,2019:2933,2020:7133,2021:7898,2022:8459,2023:4455,2024:6908},
+}
+
+vintages = {
+    "Mar-2019": {
+        "color": "#2563eb", "projStart": 2019,
+        "data": {
+            "Real GDP (%)": {2019:-0.5,2020:0.2,2021:1.2,2022:2.7,2023:2.3},
+            "Inflación promedio (%)": {2019:0.6,2020:1.2,2021:1.6,2022:1.3,2023:1.1},
+            "Cuenta Corriente (% PIB)": {2019:0.4,2020:1.4,2021:1.5,2022:1.5,2023:1.7},
+            "Balance Fiscal NFPS (% PIB)": {2019:0.0,2020:3.8,2021:2.9,2022:2.8,2023:2.9},
+            "Deuda Pública (% PIB)": {2019:49.2,2020:46.8,2021:45.2,2022:40.8,2023:36.6},
+            "Precio Petróleo Ecuador (USD/bbl)": {2019:47.8,2020:48.7,2021:49.4,2022:50.0,2023:50.7},
+            "PIB Nominal (USD mn)": {2019:106289,2020:107730,2021:110571,2022:114783,2023:118502},
+            "Reservas Internacionales (USD mn)": {2019:4999,2020:7761,2021:11397,2022:11845,2023:12944},
+        }
+    },
+    "Dic-2020": {
+        "color": "#ea580c", "projStart": 2020,
+        "data": {
+            "Real GDP (%)": {2020:-9.5,2021:3.5,2022:1.3,2023:1.7,2024:2.0,2025:2.3},
+            "Inflación promedio (%)": {2020:-0.3,2021:1.0,2022:2.4,2023:1.4,2024:1.0,2025:1.0},
+            "Cuenta Corriente (% PIB)": {2020:-0.6,2021:1.0,2022:1.6,2023:2.0,2024:2.1,2025:2.0},
+            "Balance Fiscal NFPS (% PIB)": {2020:-7.8,2021:-2.8,2022:0.6,2023:1.9,2024:2.3,2025:2.2},
+            "Deuda Pública (% PIB)": {2020:66.4,2021:66.2,2022:64.9,2023:61.9,2024:60.1,2025:56.4},
+            "Precio Petróleo Ecuador (USD/bbl)": {2020:34.7,2021:37.1,2022:38.3,2023:39.3,2024:40.1,2025:40.9},
+            "PIB Nominal (USD mn)": {2020:94297,2021:99197,2022:102841,2023:106012,2024:109458,2025:113362},
+            "Reservas Internacionales (USD mn)": {2020:5660,2021:6826,2022:8930,2023:10814,2024:13040,2025:13786},
+        }
+    },
+    "Oct-2021": {
+        "color": "#16a34a", "projStart": 2021,
+        "data": {
+            "Real GDP (%)": {2021:2.8,2022:3.5,2023:2.5,2024:2.6,2025:2.8,2026:2.8},
+            "Inflación promedio (%)": {2021:1.0,2022:2.1,2023:1.8,2024:1.5,2025:1.3,2026:1.0},
+            "Cuenta Corriente (% PIB)": {2021:1.0,2022:1.7,2023:1.9,2024:2.0,2025:2.1,2026:2.0},
+            "Balance Fiscal NFPS (% PIB)": {2021:-2.3,2022:0.1,2023:1.2,2024:1.4,2025:1.4,2026:1.0},
+            "Deuda Pública (% PIB)": {2021:61.0,2022:59.9,2023:57.9,2024:56.2,2025:52.9,2026:49.6},
+            "Precio Petróleo Ecuador (USD/bbl)": {2021:37.1,2022:59.8,2023:55.0,2024:52.3,2025:50.5,2026:49.3},
+            "PIB Nominal (USD mn)": {2021:99197,2022:104483,2023:109975,2024:114076,2025:118502,2026:123202},
+            "Reservas Internacionales (USD mn)": {2021:7196,2022:8427,2023:9908,2024:11529,2025:13443,2026:15021},
+        }
+    },
+    "Nov-2022": {
+        "color": "#dc2626", "projStart": 2022,
+        "data": {
+            "Real GDP (%)": {2022:2.7,2023:3.0,2024:2.8,2025:2.8,2026:2.8,2027:2.8},
+            "Inflación promedio (%)": {2022:3.5,2023:2.5,2024:1.5,2025:1.5,2026:1.5,2027:1.5},
+            "Cuenta Corriente (% PIB)": {2022:2.1,2023:1.8,2024:1.9,2025:2.0,2026:2.0,2027:2.0},
+            "Balance Fiscal NFPS (% PIB)": {2022:1.0,2023:1.6,2024:2.0,2025:2.1,2026:2.2,2027:1.9},
+            "Deuda Pública (% PIB)": {2022:58.3,2023:55.6,2024:53.1,2025:49.3,2026:45.3,2027:42.0},
+            "Precio Petróleo Ecuador (USD/bbl)": {2022:87.8,2023:76.0,2024:72.6,2025:69.7,2026:66.4,2027:63.8},
+            "PIB Nominal (USD mn)": {2022:116076,2023:121106,2024:126093,2025:131036,2026:136175,2027:141515},
+            "Reservas Internacionales (USD mn)": {2022:9693,2023:12050,2024:14543,2025:16360,2026:17836,2027:19001},
+        }
+    },
+    "Dic-2024": {
+        "color": "#7c3aed", "projStart": 2024,
+        "data": {
+            "Real GDP (%)": {2024:-0.4,2025:1.6,2026:1.8,2027:2.4,2028:2.5,2029:2.5},
+            "Inflación promedio (%)": {2024:1.9,2025:2.2,2026:1.6,2027:1.5,2028:1.5,2029:1.5},
+            "Cuenta Corriente (% PIB)": {2024:4.4,2025:3.1,2026:2.8,2027:2.6,2028:2.5,2029:2.5},
+            "Balance Fiscal NFPS (% PIB)": {2024:-1.8,2025:-1.3,2026:-0.2,2027:0.0,2028:0.5,2029:0.8},
+            "Deuda Pública (% PIB)": {2024:56.8,2025:56.8,2026:55.7,2027:54.4,2028:52.5,2029:50.0},
+            "Precio Petróleo Ecuador (USD/bbl)": {2024:68.5,2025:63.2,2026:61.4,2027:59.6,2028:58.5,2029:57.9},
+            "PIB Nominal (USD mn)": {2024:120433,2025:125038,2026:129175,2027:134226,2028:139645,2029:145328},
+            "Reservas Internacionales (USD mn)": {2024:7648,2025:10544,2026:12676,2027:14679,2028:16678,2029:18740},
+        }
+    },
+    "Dic-2025": {
+        "color": "#92400e", "projStart": 2025,
+        "data": {
+            "Real GDP (%)": {2025:3.4,2026:2.2,2027:2.4,2028:2.6,2029:2.8,2030:3.0},
+            "Inflación promedio (%)": {2025:0.9,2026:2.8,2027:1.5,2028:1.5,2029:1.5,2030:1.5},
+            "Cuenta Corriente (% PIB)": {2025:5.1,2026:4.1,2027:3.4,2028:3.1,2029:2.8,2030:2.8},
+            "Balance Fiscal NFPS (% PIB)": {2025:-1.2,2026:0.0,2027:0.8,2028:1.3,2029:1.3,2030:1.3},
+            "Deuda Pública (% PIB)": {2025:53.2,2026:51.4,2027:49.6,2028:47.7,2029:45.2,2030:42.2},
+            "Precio Petróleo Ecuador (USD/bbl)": {2025:58.9,2026:54.1,2027:54.1,2028:54.9,2029:55.7,2030:56.3},
+            "PIB Nominal (USD mn)": {2025:130548,2026:136083,2027:141655,2028:147553,2029:153966,2030:160999},
+            "Reservas Internacionales (USD mn)": {2025:10290,2026:13220,2027:16448,2028:19552,2029:23125,2030:26094},
+        }
+    },
+}
+
+FUENTES = (
+    "Fuentes: IMF Country Report No. 19/79, 20/325, 21/228, 22/378, 24/357, 25/341.\n"
+    "Nota: Table 1. Ecuador: Selected Economic and Financial Indicators."
+)
+
+# --- GENERACIÓN DEL PDF ---
+
+def make_pdf(output_path):
+    plt.rcParams.update({
+        "font.family": "sans-serif",
+        "font.size": 10,
+        "axes.titlesize": 14,
+        "axes.titleweight": "bold",
+    })
+
+    with PdfPages(output_path) as pdf:
+        for var_name, actual_data in actual.items():
+            fig, ax = plt.subplots(figsize=(11, 7))
+
+            # Recopilar todos los años
+            all_years = set(actual_data.keys())
+            for v in vintages.values():
+                if var_name in v["data"]:
+                    all_years.update(v["data"][var_name].keys())
+            years = sorted(all_years)
+
+            # Datos reales
+            real_x = [y for y in years if y in actual_data]
+            real_y = [actual_data[y] for y in real_x]
+            ax.plot(real_x, real_y, color="black", linewidth=2.5,
+                    marker="o", markersize=5, label="Datos Reales", zorder=10)
+
+            # Pronósticos por vintage
+            for vname, vinfo in vintages.items():
+                if var_name not in vinfo["data"]:
+                    continue
+                fdata = vinfo["data"][var_name]
+                proj_start = vinfo["projStart"]
+                connect_year = proj_start - 1
+
+                # Construir serie: punto de conexión + pronósticos
+                fx, fy = [], []
+                if connect_year in actual_data:
+                    fx.append(connect_year)
+                    fy.append(actual_data[connect_year])
+                for y in sorted(fdata.keys()):
+                    fx.append(y)
+                    fy.append(fdata[y])
+
+                ax.plot(fx, fy, color=vinfo["color"], linewidth=1.5,
+                        linestyle="--", marker=".", markersize=4,
+                        label=f"Pron. {vname}", alpha=0.85)
+
+            # Formato
+            ax.set_title(f"Ecuador: {var_name}", pad=15, color="#1a365d")
+            ax.set_xlabel("Año")
+            ax.set_ylabel(var_name)
+            ax.set_xticks(years)
+            ax.set_xticklabels([str(y) for y in years], rotation=45, ha="right", fontsize=8)
+            ax.grid(True, alpha=0.3, linestyle="-")
+            ax.legend(loc="best", fontsize=8, framealpha=0.9)
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
+
+            # Nota al pie
+            fig.text(0.5, 0.01, FUENTES, ha="center", fontsize=7,
+                     color="#666666", style="italic")
+
+            fig.tight_layout(rect=[0, 0.04, 1, 1])
+            pdf.savefig(fig)
+            plt.close(fig)
+
+    print(f"PDF generado: {output_path}")
+
+if __name__ == "__main__":
+    make_pdf(r"c:\Users\HP\OneDrive\JpE\Github\imf\IMF_Ecuador_Vintages.pdf")

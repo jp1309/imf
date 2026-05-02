@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 .~lock.*
 *.json
+!forecasts.json
 *.txt
 .claude/
 
