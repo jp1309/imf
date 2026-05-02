@@ -141,7 +141,6 @@
             Línea negra sólida = datos reales &nbsp;|&nbsp; Líneas punteadas = pronósticos del FMI
         </p>
         <p class="legend-note legend-extra">
-            Marcador hueco = nowcast (estimación del año en curso al publicar el reporte) &nbsp;|&nbsp;
             Zona sombreada = años proyectados (posteriores al último dato real)
         </p>
     </div>
@@ -389,7 +388,6 @@ function render() {
         if (!activeVintages.has(name) || !v.data[currentVar]) return;
         const fData = v.data[currentVar];
         const connectYear = v.projStart - 1;
-        const nowcastYear = v.projStart;
 
         const seriesData = years.map(y => {
             if (y === connectYear && actualData[y] !== undefined) return actualData[y];
@@ -397,29 +395,16 @@ function render() {
             return null;
         });
 
-        // (G) marcador hueco para el nowcast (primer año del vintage), círculo lleno para el resto
-        const pointStyles = years.map(y => (y === nowcastYear ? 'circle' : 'circle'));
-        const pointBg = years.map(y => (y === nowcastYear ? '#ffffff' : v.color));
-        const pointBorder = years.map(() => v.color);
-        const pointRadius = years.map(y => {
-            if (seriesData[years.indexOf(y)] === null) return 0;
-            if (y === nowcastYear) return 5;
-            return 2;
-        });
-        const pointBorderWidth = years.map(y => (y === nowcastYear ? 2 : 1));
-
         datasets.push({
             label: 'Pron. ' + name,
             data: seriesData,
             borderColor: v.color,
-            backgroundColor: v.color + '20',
+            backgroundColor: v.color,
             borderWidth: 2,
             borderDash: [6, 4],
-            pointStyle: pointStyles,
-            pointBackgroundColor: pointBg,
-            pointBorderColor: pointBorder,
-            pointBorderWidth: pointBorderWidth,
-            pointRadius: pointRadius,
+            pointBackgroundColor: v.color,
+            pointBorderColor: v.color,
+            pointRadius: 2,
             pointHoverRadius: 6,
             tension: 0.1,
             spanGaps: false,
@@ -496,9 +481,7 @@ function renderTable(years, actualData) {
         html += `<tr><td style="color:${v.color}">Pron. ${name}</td>`;
         years.forEach(y => {
             const val = fData[y];
-            const isNowcast = y === v.projStart;
-            const cls = isNowcast ? ' class="nowcast"' : '';
-            html += `<td${cls}>${val !== undefined ? fmt(val) : ''}</td>`;
+            html += `<td>${val !== undefined ? fmt(val) : ''}</td>`;
         });
         html += '</tr>';
     });
