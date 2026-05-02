@@ -176,17 +176,17 @@ function readUrlState() {
     if (!hash) return {};
     const params = new URLSearchParams(hash);
     const out = {};
-    if (params.has('var')) out.var = decodeURIComponent(params.get('var'));
+    if (params.has('var')) out.var = params.get('var');
     if (params.has('vintages')) {
-        out.vintages = params.get('vintages').split(',').map(decodeURIComponent).filter(Boolean);
+        out.vintages = params.get('vintages').split(',').filter(Boolean);
     }
     return out;
 }
 
 function writeUrlState() {
     const params = new URLSearchParams();
-    params.set('var', encodeURIComponent(currentVar));
-    params.set('vintages', [...activeVintages].map(encodeURIComponent).join(','));
+    params.set('var', currentVar);
+    params.set('vintages', [...activeVintages].join(','));
     history.replaceState(null, '', '#' + params.toString());
 }
 
