@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "canonicalData": "forecasts.json",
+  "table": "Table 1. Ecuador: Selected Economic and Financial Indicators",
+  "methodology": "Las series históricas/estimadas usan la columna corriente del informe más reciente que cubre cada año. Las columnas comparativas rotuladas con un Country Report anterior se conservan únicamente como vintage de pronóstico.",
+  "sources": [
+    {
+      "vintage": "Mar-2019",
+      "report": "IMF Country Report No. 19/79",
+      "publicationDate": "2019-03",
+      "file": "data/1ecuea2019001.pdf",
+      "sha256": "08c010380aece78b7095fb3c4206ef0ed84ac749de8c95289431cfd994f57049",
+      "actualYears": [2014, 2015, 2016, 2017]
+    },
+    {
+      "vintage": "Dic-2020",
+      "report": "IMF Country Report No. 20/325",
+      "publicationDate": "2020-12",
+      "file": "data/1ecuea2020003.pdf",
+      "sha256": "ece9acddcd7c67519a1c29428e3aa5a91139ddf6b9dc9cc246ff720d0c0a1706",
+      "actualYears": []
+    },
+    {
+      "vintage": "Oct-2021",
+      "report": "IMF Country Report No. 21/228",
+      "publicationDate": "2021-10",
+      "file": "data/1ecuea2021001.pdf",
+      "sha256": "3182a8b79685d5f2138bdd80048cfd6689dd95a51ed573d43a0fd99d1026736b",
+      "actualYears": [2018, 2019]
+    },
+    {
+      "vintage": "Nov-2022",
+      "report": "IMF Country Report No. 22/378",
+      "publicationDate": "2022-11",
+      "file": "data/1ecuea2022002.pdf",
+      "sha256": "0784c25425cd88138ac73590a0748580164928a852b2c667d61f49d42f8dc86a",
+      "actualYears": [2020, 2021]
+    },
+    {
+      "vintage": "Dic-2024",
+      "report": "IMF Country Report No. 24/357",
+      "publicationDate": "2024-12",
+      "file": "data/1ecuea2024002.pdf",
+      "sha256": "2a403e2e66a25ccaf7ac3574dffa7d9f8a0168cd4ceeb54d438a12f356af9ee5",
+      "actualYears": [2022]
+    },
+    {
+      "vintage": "Dic-2025",
+      "report": "IMF Country Report No. 25/341",
+      "publicationDate": "2025-12",
+      "file": "data/1ecuea2025003.pdf",
+      "sha256": "40b7874578665fd67da24e0180abba8d4f9d458d899fb8bc02603149d5154393",
+      "actualYears": []
+    },
+    {
+      "vintage": "Abr-2026",
+      "report": "IMF Country Report No. 26/84",
+      "publicationDate": "2026-04",
+      "file": "data/1ecuea2026001.pdf",
+      "sha256": "d659676983112e1f381948063a7a79169e42f958ed6b8ec7425c123d14822fbe",
+      "tablePageIndex": 35,
+      "actualYears": [2023, 2024, 2025],
+      "forecastYears": [2026, 2027, 2028, 2029, 2030, 2031],
+      "columnNote": "Para 2025 y 2026 la tabla muestra columnas comparativas CR/25/341 y columnas corrientes. El histórico 2025 usa la columna corriente; el vintage Abr-2026 usa la proyección corriente de 2026 en adelante."
+    }
+  ]
+}

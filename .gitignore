@@ -4,8 +4,14 @@ __pycache__/
 .~lock.*
 *.json
 !forecasts.json
+!data/source_manifest.json
 *.txt
+!requirements.txt
 .claude/
+
+# Artefactos temporales de validación y build
+tmp/
+outputs/
 
 # PDFs en raíz (los usados están en data/)
 /1ecuea*.pdf
