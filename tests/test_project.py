@@ -79,10 +79,10 @@ class StaticApplicationTests(unittest.TestCase):
         required = {
             "releaseReport", "releaseDate", "varSelect", "vintageToggles", "btnAll",
             "btnNone", "btnReset", "btnCsv", "btnDownload", "btnShare", "mainChart",
-            "chartSubtitle", "accuracyTableContainer", "dataTableContainer",
+            "chartSubtitle", "dataTableContainer",
             "methodologyText", "sourceList", "kpiActual", "kpiActualNote",
             "kpiLatestForecast", "kpiLatestForecastNote", "kpiRevision",
-            "kpiRevisionNote", "kpiMae", "kpiMaeNote", "toast", "main",
+            "kpiRevisionNote", "toast", "main",
         }
         self.assertEqual(required - self.parser.ids, set())
 
@@ -91,6 +91,10 @@ class StaticApplicationTests(unittest.TestCase):
         self.assertIn('fetch("data/source_manifest.json"', self.javascript)
         self.assertNotIn("canÃ", self.javascript)
         self.assertNotIn("histÃ", self.javascript)
+
+    def test_web_interface_does_not_expose_mae(self) -> None:
+        self.assertNotIn("MAE", self.html.upper())
+        self.assertNotIn("MAE", self.javascript.upper())
 
 
 if __name__ == "__main__":

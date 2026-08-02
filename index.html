@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Comparador reproducible de datos históricos/estimados y vintages de pronósticos del FMI para Ecuador.">
-  <meta name="theme-color" content="#0b253a">
-  <title>Ecuador | Monitor de pronósticos del FMI</title>
+  <meta name="description" content="Comparación interactiva de la historia revisada y los pronósticos macroeconómicos del FMI para Ecuador.">
+  <meta name="theme-color" content="#1a365d">
+  <title>Ecuador | Historia y pronósticos del FMI</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.1.0/chartjs-plugin-annotation.min.js" defer></script>
@@ -14,150 +14,105 @@
 <body>
   <a class="skip-link" href="#main">Saltar al contenido</a>
 
-  <header class="hero">
-    <div class="shell hero__inner">
-      <div>
-        <p class="eyebrow">Ecuador · IMF Forecast Monitor</p>
-        <h1>Pronósticos del FMI frente a la historia revisada</h1>
-        <p class="hero__lede">
-          Explora cómo cambiaron las proyecciones macroeconómicas entre Staff Reports y compáralas con la estimación histórica más reciente disponible.
-        </p>
-      </div>
-      <div class="release-card" aria-label="Estado de actualización">
-        <span class="release-card__dot" aria-hidden="true"></span>
-        <div>
-          <strong id="releaseReport">Cargando fuente…</strong>
-          <span id="releaseDate">Verificando datos</span>
-        </div>
+  <header class="site-header">
+    <div class="container header-content">
+      <p class="header-kicker">Ecuador · Monitor macroeconómico</p>
+      <h1>Historia y pronósticos del FMI</h1>
+      <p class="header-description">Compara las estimaciones históricas más recientes con las proyecciones publicadas en siete Staff Reports.</p>
+      <div class="release-line" aria-label="Estado de actualización">
+        <span class="status-dot" aria-hidden="true"></span>
+        <strong id="releaseReport">Cargando fuente…</strong>
+        <span aria-hidden="true">·</span>
+        <span id="releaseDate">Verificando datos</span>
       </div>
     </div>
   </header>
 
-  <main id="main" class="shell main-layout">
-    <section class="panel controls" aria-labelledby="controlsTitle">
-      <div class="section-heading section-heading--compact">
-        <div>
-          <p class="section-kicker">Explorar</p>
-          <h2 id="controlsTitle">Configura la comparación</h2>
-        </div>
-        <button class="text-button" type="button" id="btnReset">Restablecer</button>
-      </div>
+  <main id="main" class="container main-layout">
+    <section class="panel controls" aria-label="Configurar comparación">
+      <label class="control-group variable-control" for="varSelect">
+        <span>Variable</span>
+        <select id="varSelect"></select>
+      </label>
 
-      <div class="control-grid">
-        <label class="field" for="varSelect">
-          <span>Variable</span>
-          <select id="varSelect"></select>
-        </label>
+      <fieldset class="control-group vintage-control">
+        <legend>Vintages del FMI</legend>
+        <div class="vintage-toggles" id="vintageToggles" role="group" aria-label="Vintages del FMI"></div>
+      </fieldset>
 
-        <fieldset class="vintage-fieldset">
-          <legend>Vintages del FMI</legend>
-          <div class="vintage-toolbar">
-            <button class="chip-action" type="button" id="btnAll">Todos</button>
-            <button class="chip-action" type="button" id="btnNone">Ninguno</button>
-          </div>
-          <div class="vintage-toggles" id="vintageToggles" role="group" aria-label="Vintages del FMI"></div>
-        </fieldset>
+      <div class="toolbar-actions" aria-label="Acciones">
+        <button class="action-button" type="button" id="btnAll">Todos</button>
+        <button class="action-button" type="button" id="btnNone">Ninguno</button>
+        <button class="action-button" type="button" id="btnReset">Restablecer</button>
+        <button class="action-button" type="button" id="btnCsv">CSV</button>
+        <button class="action-button" type="button" id="btnDownload">Descargar PNG</button>
+        <button class="action-button action-button--primary" type="button" id="btnShare">Copiar enlace</button>
       </div>
     </section>
 
-    <section class="kpi-grid" id="kpiGrid" aria-label="Resumen de la variable seleccionada">
-      <article class="kpi-card">
-        <span class="kpi-card__label">Último histórico/estimado</span>
+    <section class="summary-strip" aria-label="Resumen de la variable seleccionada">
+      <article class="summary-item">
+        <span>Último histórico/estimado</span>
         <strong id="kpiActual">—</strong>
-        <span id="kpiActualNote">—</span>
+        <small id="kpiActualNote">—</small>
       </article>
-      <article class="kpi-card kpi-card--teal">
-        <span class="kpi-card__label">Pronóstico más reciente</span>
+      <article class="summary-item">
+        <span>Pronóstico más reciente</span>
         <strong id="kpiLatestForecast">—</strong>
-        <span id="kpiLatestForecastNote">—</span>
+        <small id="kpiLatestForecastNote">—</small>
       </article>
-      <article class="kpi-card kpi-card--gold">
-        <span class="kpi-card__label">Revisión del próximo año</span>
+      <article class="summary-item">
+        <span>Revisión del próximo año</span>
         <strong id="kpiRevision">—</strong>
-        <span id="kpiRevisionNote">—</span>
-      </article>
-      <article class="kpi-card kpi-card--slate">
-        <span class="kpi-card__label">Menor MAE disponible</span>
-        <strong id="kpiMae">—</strong>
-        <span id="kpiMaeNote">—</span>
+        <small id="kpiRevisionNote">—</small>
       </article>
     </section>
 
     <section class="panel chart-panel" aria-labelledby="chartSectionTitle">
-      <div class="section-heading">
+      <div class="chart-heading">
         <div>
-          <p class="section-kicker">Trayectoria</p>
-          <h2 id="chartSectionTitle">Historia y escenarios</h2>
-          <p id="chartSubtitle" class="section-description"></p>
-        </div>
-        <div class="action-group" aria-label="Acciones del gráfico">
-          <button class="secondary-button" type="button" id="btnCsv">Descargar CSV</button>
-          <button class="secondary-button" type="button" id="btnDownload">Descargar PNG</button>
-          <button class="primary-button" type="button" id="btnShare">Copiar enlace</button>
+          <h2 id="chartSectionTitle">Datos históricos y pronósticos</h2>
+          <p id="chartSubtitle"></p>
         </div>
       </div>
-
       <div class="chart-wrap">
         <canvas id="mainChart" role="img" aria-label="Gráfico de datos históricos/estimados y pronósticos del FMI"></canvas>
       </div>
-      <div class="chart-legend-note">
+      <p class="legend-note">
         <span><i class="line-sample line-sample--actual" aria-hidden="true"></i>Histórico / estimado</span>
-        <span><i class="line-sample line-sample--forecast" aria-hidden="true"></i>Pronóstico publicado</span>
-        <span><i class="zone-sample" aria-hidden="true"></i>Horizonte posterior al último dato</span>
-      </div>
+        <span><i class="line-sample line-sample--forecast" aria-hidden="true"></i>Pronósticos del FMI</span>
+        <span><i class="zone-sample" aria-hidden="true"></i>Horizonte proyectado</span>
+      </p>
     </section>
 
-    <section class="analysis-grid">
-      <article class="panel" aria-labelledby="accuracyTitle">
-        <div class="section-heading section-heading--compact">
-          <div>
-            <p class="section-kicker">Desempeño</p>
-            <h2 id="accuracyTitle">Error observado por vintage</h2>
-          </div>
-        </div>
-        <p class="section-description">Las métricas usan únicamente años que ya cuentan con una estimación histórica. Los vintages recientes tienen menos observaciones.</p>
-        <div class="table-scroll" id="accuracyTableContainer"></div>
-      </article>
-
-      <aside class="panel methodology" aria-labelledby="methodTitle">
-        <p class="section-kicker">Lectura correcta</p>
-        <h2 id="methodTitle">Qué significa “histórico / estimado”</h2>
-        <p id="methodologyText"></p>
-        <dl class="definition-list">
-          <div><dt>Error</dt><dd>Pronóstico menos histórico/estimado.</dd></div>
-          <div><dt>MAE</dt><dd>Promedio del error absoluto; menor es mejor.</dd></div>
-          <div><dt>Sesgo</dt><dd>Positivo implica sobreestimación promedio.</dd></div>
-        </dl>
-      </aside>
-    </section>
-
-    <section class="panel" aria-labelledby="dataTitle">
-      <div class="section-heading section-heading--compact">
-        <div>
-          <p class="section-kicker">Auditoría</p>
-          <h2 id="dataTitle">Datos del gráfico</h2>
-        </div>
+    <section class="panel data-panel" aria-labelledby="dataTitle">
+      <div class="compact-heading">
+        <h2 id="dataTitle">Datos del gráfico</h2>
+        <span>Desplázate horizontalmente para consultar todos los años.</span>
       </div>
       <div class="table-scroll" id="dataTableContainer"></div>
     </section>
 
-    <section class="panel sources" aria-labelledby="sourcesTitle">
-      <div class="section-heading section-heading--compact">
-        <div>
-          <p class="section-kicker">Proveniencia</p>
-          <h2 id="sourcesTitle">Fuentes y trazabilidad</h2>
-        </div>
-      </div>
-      <p>Los valores provienen de la <em>Table 1. Ecuador: Selected Economic and Financial Indicators</em> de cada Country Report.</p>
-      <div class="source-list" id="sourceList"></div>
-      <p class="source-note">La fuente canónica del proyecto es <code>forecasts.json</code>; el Excel, el PDF, los PNG y esta página se generan o validan contra ese archivo.</p>
+    <section class="information-grid">
+      <aside class="panel methodology" aria-labelledby="methodTitle">
+        <h2 id="methodTitle">Cómo leer la serie</h2>
+        <p id="methodologyText"></p>
+        <p class="method-note"><strong>Importante:</strong> “Histórico/estimado” representa la estimación más reciente del FMI y puede revisarse en publicaciones posteriores.</p>
+      </aside>
+
+      <section class="panel sources" aria-labelledby="sourcesTitle">
+        <h2 id="sourcesTitle">Fuentes</h2>
+        <p>Table 1: <em>Ecuador: Selected Economic and Financial Indicators</em>.</p>
+        <div class="source-list" id="sourceList"></div>
+        <p class="source-note">Datos estructurados en <code>forecasts.json</code> y verificados contra los informes originales.</p>
+      </section>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="shell footer__inner">
+    <div class="container footer-inner">
       <p>Análisis reproducible con fuentes del Fondo Monetario Internacional.</p>
-      <a href="https://github.com/jp1309/imf">Código y metodología en GitHub</a>
+      <a href="https://github.com/jp1309/imf">Código y metodología</a>
     </div>
   </footer>
 

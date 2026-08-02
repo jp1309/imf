@@ -14,7 +14,7 @@ Aplicación web y paquete reproducible de datos para comparar cómo cambiaron lo
 - Ocho variables: PIB real, inflación, balance fiscal del NFPS, deuda pública, cuenta corriente, precio del petróleo, PIB nominal y reservas internacionales.
 - Siete vintages: Mar-2019, Dic-2020, Oct-2021, Nov-2022, Dic-2024, Dic-2025 y Abr-2026.
 - Revisión del primer año proyectado entre el último y el penúltimo informe.
-- Error histórico por vintage con MAE, RMSE, sesgo y tamaño de muestra.
+- Tabla auditable con todos los valores que aparecen en el gráfico.
 - Descarga de la vista seleccionada en CSV, exportación del gráfico a PNG y enlace compartible mediante el estado guardado en la URL.
 
 ## Fuente, metodología y trazabilidad
@@ -117,17 +117,6 @@ GitHub Pages publica directamente la raíz de la rama `main`; no existe un paso 
 | `color` | texto | Color hexadecimal estable usado por la interfaz. |
 
 Los nombres de variables son claves estables. La unidad y los decimales de presentación viven en `meta.variables`; no deben inferirse del nombre.
-
-### Métricas de error
-
-Para los años en los que ya existe una estimación histórica revisada:
-
-- **Error:** pronóstico − histórico/estimado.
-- **MAE:** promedio del error absoluto.
-- **RMSE:** raíz del promedio de los errores al cuadrado.
-- **Sesgo:** promedio del error con signo; positivo implica sobreestimación.
-
-Estas métricas evalúan vintages con distinto número de observaciones, por lo que siempre se muestra `N`.
 
 ## Control de calidad
 

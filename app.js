@@ -31,10 +31,9 @@ async function boot() {
 function cacheElements() {
   [
     "releaseReport", "releaseDate", "varSelect", "vintageToggles", "btnAll", "btnNone", "btnReset",
-    "btnCsv", "btnDownload", "btnShare", "mainChart", "chartSubtitle", "accuracyTableContainer",
+    "btnCsv", "btnDownload", "btnShare", "mainChart", "chartSubtitle",
     "dataTableContainer", "methodologyText", "sourceList", "kpiActual", "kpiActualNote",
-    "kpiLatestForecast", "kpiLatestForecastNote", "kpiRevision", "kpiRevisionNote", "kpiMae",
-    "kpiMaeNote", "toast",
+    "kpiLatestForecast", "kpiLatestForecastNote", "kpiRevision", "kpiRevisionNote", "toast",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
 }
 
@@ -149,8 +148,8 @@ function writeUrlState() {
 }
 
 function resetState() {
-  state.currentVariable = state.variableNames.includes("Reservas Internacionales (USD mn)")
-    ? "Reservas Internacionales (USD mn)"
+  state.currentVariable = state.variableNames.includes("Real GDP (%)")
+    ? "Real GDP (%)"
     : state.variableNames[0];
   state.activeVintages = new Set(Object.keys(state.vintages));
   elements.varSelect.value = state.currentVariable;
@@ -181,10 +180,8 @@ function syncVintageButtons() {
 function render() {
   const actualSeries = state.actual[state.currentVariable] || {};
   const years = collectYears(actualSeries);
-  const metrics = calculateMetrics(actualSeries);
-  renderKpis(actualSeries, metrics);
+  renderKpis(actualSeries);
   renderChart(actualSeries, years);
-  renderAccuracyTable(metrics);
   renderDataTable(actualSeries, years);
 
   const variableMeta = getVariableMeta();
@@ -209,27 +206,7 @@ function lastYear(series) {
   return years.length ? Math.max(...years) : null;
 }
 
-function calculateMetrics(actualSeries) {
-  return Object.entries(state.vintages).map(([name, vintage]) => {
-    const forecastSeries = vintage.data[state.currentVariable] || {};
-    const errors = Object.entries(forecastSeries)
-      .map(([year, forecast]) => ({ year: Number(year), forecast, actual: actualSeries[Number(year)] }))
-      .filter((item) => Number.isFinite(item.forecast) && Number.isFinite(item.actual))
-      .map((item) => ({ ...item, error: item.forecast - item.actual }));
-    const n = errors.length;
-    return {
-      name,
-      color: vintage.color,
-      n,
-      errors,
-      mae: n ? errors.reduce((sum, item) => sum + Math.abs(item.error), 0) / n : null,
-      rmse: n ? Math.sqrt(errors.reduce((sum, item) => sum + item.error ** 2, 0) / n) : null,
-      bias: n ? errors.reduce((sum, item) => sum + item.error, 0) / n : null,
-    };
-  });
-}
-
-function renderKpis(actualSeries, metrics) {
+function renderKpis(actualSeries) {
   const meta = getVariableMeta();
   const actualYear = lastYear(actualSeries);
   const nextYear = actualYear + 1;
@@ -240,8 +217,6 @@ function renderKpis(actualSeries, metrics) {
   const previousName = vintageNames.filter((name) => name !== latestName).at(-1);
   const latestValue = state.vintages[latestName]?.data[state.currentVariable]?.[nextYear];
   const previousValue = state.vintages[previousName]?.data[state.currentVariable]?.[nextYear];
-  const best = metrics.filter((item) => item.n > 0).sort((a, b) => a.mae - b.mae)[0];
-
   elements.kpiActual.textContent = formatValue(actualSeries[actualYear], meta);
   elements.kpiActualNote.textContent = `${actualYear} · estimación vigente en ${state.meta.latestVintage}`;
   elements.kpiLatestForecast.textContent = Number.isFinite(latestValue) ? formatValue(latestValue, meta) : "—";
@@ -255,9 +230,6 @@ function renderKpis(actualSeries, metrics) {
     elements.kpiRevision.textContent = "—";
     elements.kpiRevisionNote.textContent = "Sin vintage comparable";
   }
-
-  elements.kpiMae.textContent = best ? formatValue(best.mae, meta) : "—";
-  elements.kpiMaeNote.textContent = best ? `${best.name} · ${best.n} observación${best.n === 1 ? "" : "es"}` : "Sin años observados";
 }
 
 function renderChart(actualSeries, years) {
@@ -355,38 +327,6 @@ function renderChart(actualSeries, years) {
       },
     },
   });
-}
-
-function renderAccuracyTable(metrics) {
-  const meta = getVariableMeta();
-  const ranked = [...metrics].sort((a, b) => {
-    if (a.mae === null) return 1;
-    if (b.mae === null) return -1;
-    return a.mae - b.mae;
-  });
-  const table = document.createElement("table");
-  table.innerHTML = "<thead><tr><th>Vintage</th><th>N</th><th>MAE</th><th>RMSE</th><th>Sesgo</th></tr></thead>";
-  const body = document.createElement("tbody");
-  ranked.forEach((metric, index) => {
-    const row = document.createElement("tr");
-    const values = [
-      metric.name,
-      metric.n,
-      metric.mae === null ? "—" : formatValue(metric.mae, meta),
-      metric.rmse === null ? "—" : formatValue(metric.rmse, meta),
-      metric.bias === null ? "—" : formatSigned(metric.bias, meta),
-    ];
-    values.forEach((value, column) => {
-      const cell = document.createElement("td");
-      cell.textContent = value;
-      if (column === 0) cell.style.color = metric.color;
-      if (column === 2 && index === 0 && metric.mae !== null) cell.className = "metric-good";
-      row.append(cell);
-    });
-    body.append(row);
-  });
-  table.append(body);
-  elements.accuracyTableContainer.replaceChildren(table);
 }
 
 function renderDataTable(actualSeries, years) {
