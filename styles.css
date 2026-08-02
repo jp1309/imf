@@ -106,8 +106,7 @@ a { color: var(--blue); }
   padding: 1.5rem 0 2.5rem;
 }
 
-.panel,
-.summary-strip {
+.panel {
   min-width: 0;
   border: 1px solid var(--border-light);
   border-radius: var(--radius);
@@ -184,34 +183,6 @@ a:focus-visible {
 .action-button:hover { background: #e2e8f0; color: var(--navy); }
 .action-button--primary { border-color: var(--blue); background: var(--blue); color: #ffffff; }
 .action-button--primary:hover { border-color: var(--blue-dark); background: var(--blue-dark); color: #ffffff; }
-
-.summary-strip {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  overflow: hidden;
-}
-.summary-item {
-  min-width: 0;
-  padding: 0.9rem 1.2rem;
-  border-left: 1px solid var(--border);
-}
-.summary-item:first-child { border-left: 0; }
-.summary-item > span {
-  display: block;
-  color: var(--muted);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.summary-item strong {
-  display: block;
-  margin-top: 0.2rem;
-  color: var(--navy);
-  font-size: 1.45rem;
-  line-height: 1.2;
-}
-.summary-item small { display: block; margin-top: 0.18rem; color: #718096; font-size: 0.76rem; }
 
 .chart-heading,
 .compact-heading {
@@ -342,9 +313,6 @@ code { padding: 0.1rem 0.3rem; border-radius: 4px; background: #edf2f7; color: v
   .site-header { padding: 1.65rem 0.7rem 1.35rem; }
   .controls { grid-template-columns: 1fr; }
   .toolbar-actions { grid-column: auto; }
-  .summary-strip { grid-template-columns: 1fr; }
-  .summary-item { border-top: 1px solid var(--border); border-left: 0; }
-  .summary-item:first-child { border-top: 0; }
   .panel { padding: 1rem; }
   .chart-wrap { height: 360px; }
   .compact-heading { display: block; }

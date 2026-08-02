@@ -32,8 +32,7 @@ function cacheElements() {
   [
     "releaseReport", "releaseDate", "varSelect", "vintageToggles", "btnAll", "btnNone", "btnReset",
     "btnCsv", "btnDownload", "btnShare", "mainChart", "chartSubtitle",
-    "dataTableContainer", "methodologyText", "sourceList", "kpiActual", "kpiActualNote",
-    "kpiLatestForecast", "kpiLatestForecastNote", "kpiRevision", "kpiRevisionNote", "toast",
+    "dataTableContainer", "methodologyText", "sourceList", "toast",
   ].forEach((id) => { elements[id] = document.getElementById(id); });
 }
 
@@ -180,7 +179,6 @@ function syncVintageButtons() {
 function render() {
   const actualSeries = state.actual[state.currentVariable] || {};
   const years = collectYears(actualSeries);
-  renderKpis(actualSeries);
   renderChart(actualSeries, years);
   renderDataTable(actualSeries, years);
 
@@ -204,32 +202,6 @@ function collectYears(actualSeries) {
 function lastYear(series) {
   const years = Object.keys(series).map(Number).filter((year) => Number.isFinite(series[year]));
   return years.length ? Math.max(...years) : null;
-}
-
-function renderKpis(actualSeries) {
-  const meta = getVariableMeta();
-  const actualYear = lastYear(actualSeries);
-  const nextYear = actualYear + 1;
-  const vintageNames = Object.keys(state.vintages);
-  const latestName = state.meta.latestVintage && state.vintages[state.meta.latestVintage]
-    ? state.meta.latestVintage
-    : vintageNames[vintageNames.length - 1];
-  const previousName = vintageNames.filter((name) => name !== latestName).at(-1);
-  const latestValue = state.vintages[latestName]?.data[state.currentVariable]?.[nextYear];
-  const previousValue = state.vintages[previousName]?.data[state.currentVariable]?.[nextYear];
-  elements.kpiActual.textContent = formatValue(actualSeries[actualYear], meta);
-  elements.kpiActualNote.textContent = `${actualYear} · estimación vigente en ${state.meta.latestVintage}`;
-  elements.kpiLatestForecast.textContent = Number.isFinite(latestValue) ? formatValue(latestValue, meta) : "—";
-  elements.kpiLatestForecastNote.textContent = `${nextYear} · ${latestName}`;
-
-  if (Number.isFinite(latestValue) && Number.isFinite(previousValue)) {
-    const revision = latestValue - previousValue;
-    elements.kpiRevision.textContent = formatSigned(revision, meta);
-    elements.kpiRevisionNote.textContent = `${nextYear}: ${latestName} vs ${previousName}`;
-  } else {
-    elements.kpiRevision.textContent = "—";
-    elements.kpiRevisionNote.textContent = "Sin vintage comparable";
-  }
 }
 
 function renderChart(actualSeries, years) {
@@ -404,13 +376,6 @@ function formatValue(value, meta = getVariableMeta(), includeUnit = true) {
 function formatCompact(value, meta = getVariableMeta()) {
   const decimals = Math.abs(Number(value)) >= 1000 ? 0 : Number(meta.decimals ?? 1);
   return Number(value).toLocaleString("es-EC", { maximumFractionDigits: decimals });
-}
-
-function formatSigned(value, meta = getVariableMeta()) {
-  if (!Number.isFinite(value)) return "—";
-  const magnitude = formatValue(Math.abs(value), meta);
-  if (value === 0) return `0 ${meta.unit}`.trim();
-  return `${value > 0 ? "+" : "−"}${magnitude}`;
 }
 
 function formatMonth(isoDate) {

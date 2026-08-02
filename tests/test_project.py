@@ -80,9 +80,7 @@ class StaticApplicationTests(unittest.TestCase):
             "releaseReport", "releaseDate", "varSelect", "vintageToggles", "btnAll",
             "btnNone", "btnReset", "btnCsv", "btnDownload", "btnShare", "mainChart",
             "chartSubtitle", "dataTableContainer",
-            "methodologyText", "sourceList", "kpiActual", "kpiActualNote",
-            "kpiLatestForecast", "kpiLatestForecastNote", "kpiRevision",
-            "kpiRevisionNote", "toast", "main",
+            "methodologyText", "sourceList", "toast", "main",
         }
         self.assertEqual(required - self.parser.ids, set())
 
@@ -95,6 +93,10 @@ class StaticApplicationTests(unittest.TestCase):
     def test_web_interface_does_not_expose_mae(self) -> None:
         self.assertNotIn("MAE", self.html.upper())
         self.assertNotIn("MAE", self.javascript.upper())
+
+    def test_summary_strip_is_removed(self) -> None:
+        self.assertNotIn("summary-strip", self.html)
+        self.assertNotIn("kpiActual", self.javascript)
 
 
 if __name__ == "__main__":
